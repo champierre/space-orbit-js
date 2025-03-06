@@ -27,9 +27,6 @@ const MOON_TRAIL_LENGTH = 200; // 月の軌跡の長さ（ポイント数）
 let spacecrafts = []; // 宇宙船の配列
 let sparkleEffects = []; // キラキラエフェクトの配列
 let explosionEffects = []; // 爆発エフェクトの配列
-let isDragging = false; // ドラッグ中かどうか
-let dragStartX, dragStartY; // ドラッグ開始位置
-let dragCurrentX, dragCurrentY; // 現在のドラッグ位置
 
 // 宇宙船クラス
 class Spacecraft {
@@ -203,27 +200,6 @@ function updateMoonPosition() {
   }
 }
 
-// 矢印を描画する関数
-function drawArrow(x1, y1, x2, y2) {
-  // 矢印の線を描画
-  stroke(ARROW_COLOR);
-  strokeWeight(3);
-  line(x1, y1, x2, y2);
-  
-  // 矢印の先端を描画
-  let angle = atan2(y2 - y1, x2 - x1);
-  let arrowSize = 10;
-  
-  fill(ARROW_COLOR);
-  push();
-  translate(x2, y2);
-  rotate(angle);
-  triangle(0, 0, -arrowSize, -arrowSize/2, -arrowSize, arrowSize/2);
-  pop();
-  
-  // 線の太さをリセット
-  strokeWeight(1);
-}
 
 // p5.jsの描画ループ
 function draw() {
@@ -252,11 +228,6 @@ function draw() {
   fill(MOON_COLOR);
   noStroke();
   ellipse(moonX, moonY, MOON_RADIUS, MOON_RADIUS);
-  
-  // ドラッグ中なら矢印を描画
-  if (isDragging) {
-    drawArrow(dragStartX, dragStartY, dragCurrentX, dragCurrentY);
-  }
   
   // 宇宙船を更新・描画
   for (let i = spacecrafts.length - 1; i >= 0; i--) {
@@ -356,50 +327,12 @@ function mousePressed() {
     return;
   }
   
-  // クリック位置を記録（ドラッグ開始位置として使用）
-  dragStartX = mouseX;
-  dragStartY = mouseY;
-  dragCurrentX = mouseX;
-  dragCurrentY = mouseY;
-}
-
-// マウスドラッグイベント
-function mouseDragged() {
-  // ドラッグ開始
-  isDragging = true;
-  dragCurrentX = mouseX;
-  dragCurrentY = mouseY;
-}
-
-// マウスリリースイベント
-function mouseReleased() {
-  // 矢印の方向と長さから初速度を計算
-  let dirX = dragCurrentX - dragStartX;
-  let dirY = dragCurrentY - dragStartY;
-  let dirMag = sqrt(dirX * dirX + dirY * dirY);
-  
-  // 初速度を設定
-  let vx, vy, speed;
-  
-  if (isDragging) {
-    // ドラッグしていた場合、矢印の方向と長さで発射
-    isDragging = false;
-    
-    // 初速度の大きさは矢印の長さに比例
-    speed = map(dirMag, 0, 100, 0, 10);
-    speed = constrain(speed, 0, 15); // 速度に上限を設定
-    
-    // 方向ベクトルを正規化して速度を設定
-    vx = dirX / dirMag * speed;
-    vy = dirY / dirMag * speed;
-  } else {
-    // クリックのみの場合はデフォルトの速度と方向で発射
-    vx = 5;
-    vy = 0;
-  }
+  // クリックした場所に宇宙船を発射（デフォルトの速度と方向）
+  let vx = 5; // デフォルトの速度（右方向）
+  let vy = 0;
   
   // 宇宙船を追加
-  spacecrafts.push(new Spacecraft(dragStartX, dragStartY, vx, vy));
+  spacecrafts.push(new Spacecraft(mouseX, mouseY, vx, vy));
 }
 
 // ウィンドウリサイズイベント
