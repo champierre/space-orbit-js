@@ -3,7 +3,6 @@ const EARTH_RADIUS = 30; // 地球の半径（ピクセル）
 const MOON_RADIUS = 10; // 月の半径（ピクセル）
 const MOON_DISTANCE = 200; // 月の軌道半径（ピクセル）
 const MOON_ANGULAR_VELOCITY = 0.005; // 月の角速度
-// 最大宇宙船数の制限を撤廃
 const TRAIL_LENGTH = 100; // 軌道の長さ（ポイント数）
 
 // 重力定数
