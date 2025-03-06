@@ -19,6 +19,7 @@ const SPACECRAFT_COLOR = [255, 255, 255]; // 宇宙船の色（白）
 // グローバル変数
 let moonAngle = 0; // 月の角度
 let moonX, moonY; // 月の位置
+let moonTrail = []; // 月の軌道の履歴
 let spacecrafts = []; // 宇宙船の配列
 let sparkleEffects = []; // キラキラエフェクトの配列
 let explosionEffects = []; // 爆発エフェクトの配列
@@ -180,6 +181,7 @@ function setup() {
   
   // 初期化
   moonAngle = 0;
+  moonTrail = [];
   updateMoonPosition();
 }
 
@@ -187,6 +189,12 @@ function setup() {
 function updateMoonPosition() {
   moonX = width/2 + MOON_DISTANCE * cos(moonAngle);
   moonY = height/2 + MOON_DISTANCE * sin(moonAngle);
+  
+  // 月の軌道の履歴を更新
+  moonTrail.push(createVector(moonX, moonY));
+  if (moonTrail.length > 360) { // 月の軌道は一周分（約360ポイント）保存
+    moonTrail.shift();
+  }
 }
 
 // p5.jsの描画ループ
@@ -201,6 +209,15 @@ function draw() {
   fill(EARTH_COLOR);
   noStroke();
   ellipse(width/2, height/2, EARTH_RADIUS, EARTH_RADIUS);
+  
+  // 月の軌道を描画
+  noFill();
+  stroke(100, 100, 100); // グレーの軌道
+  beginShape();
+  for (let i = 0; i < moonTrail.length; i++) {
+    vertex(moonTrail[i].x, moonTrail[i].y);
+  }
+  endShape();
   
   // 月を描画
   fill(MOON_COLOR);
