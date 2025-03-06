@@ -1,7 +1,6 @@
 # Space Orbit JS
 
-未就学児向け軌道設計アプリケーション「Space Orbit」のJavaScript実装版です。
-[Space Orbit](https://zenn.dev/ta168/articles/space-orbit_app)を参考に実装しています。
+[@Toshiya_A](https://x.com/Toshiya_A)氏が開発した未就学児向け軌道設計アプリケーション[Space Orbit](https://zenn.dev/ta168/articles/space-orbit_app)のJavaScript実装版です。
 
 ## 概要
 
@@ -28,13 +27,12 @@ Space Orbitは、自由に宇宙船を発射してその軌道を眺めること
 1. ブラウザでindex.htmlを開く
 2. 画面上の任意の場所をクリックして宇宙船を発射
 3. 地球をクリックするとすべての宇宙船を消去
-4. 宇宙船の数は10機程度に抑えることを推奨
 
 ## 注意事項
 
 - 地球と月は実際の縮尺よりも大きめ（5倍）に表示しています
 - 実際の軌道設計には使用しないでください
-- 宇宙船が多すぎるとパフォーマンスが低下する場合があります
+- 宇宙船の数に制限はありませんが、多すぎるとパフォーマンスが低下する場合があります
 
 ## 仕様
 

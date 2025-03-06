@@ -1,7 +1,7 @@
 # Space Orbit 仕様書
 
 ## 概要
-Space Orbitは未就学児向けの軌道設計アプリケーションです。ユーザーは自由に宇宙船を発射し、地球と月の重力に従って動く軌道を眺めることができます。[Space Orbit](https://zenn.dev/ta168/articles/space-orbit_app)を参考に実装しています。
+[Space Orbit](https://zenn.dev/ta168/articles/space-orbit_app)は未就学児向けの軌道設計アプリケーションです。ユーザーは自由に宇宙船を発射し、地球と月の重力に従って動く軌道を眺めることができます。
 
 ## 機能要件
 
