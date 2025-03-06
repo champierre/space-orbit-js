@@ -7,8 +7,8 @@ const MAX_SPACECRAFT = 10; // 最大宇宙船数
 const TRAIL_LENGTH = 100; // 軌道の長さ（ポイント数）
 
 // 重力定数
-const MU_EARTH = 5000; // 地球の重力定数
-const MU_MOON = 500; // 月の重力定数
+const MU_EARTH = 4000; // 地球の重力定数（弱めた）
+const MU_MOON = 400; // 月の重力定数（弱めた）
 
 // 色
 const EARTH_COLOR = [0, 100, 255]; // 地球の色（青）
