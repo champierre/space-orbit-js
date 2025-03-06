@@ -356,8 +356,7 @@ function mousePressed() {
     return;
   }
   
-  // ドラッグ開始
-  isDragging = true;
+  // クリック位置を記録（ドラッグ開始位置として使用）
   dragStartX = mouseX;
   dragStartY = mouseY;
   dragCurrentX = mouseX;
@@ -366,44 +365,41 @@ function mousePressed() {
 
 // マウスドラッグイベント
 function mouseDragged() {
-  if (isDragging) {
-    dragCurrentX = mouseX;
-    dragCurrentY = mouseY;
-  }
+  // ドラッグ開始
+  isDragging = true;
+  dragCurrentX = mouseX;
+  dragCurrentY = mouseY;
 }
 
 // マウスリリースイベント
 function mouseReleased() {
+  // 矢印の方向と長さから初速度を計算
+  let dirX = dragCurrentX - dragStartX;
+  let dirY = dragCurrentY - dragStartY;
+  let dirMag = sqrt(dirX * dirX + dirY * dirY);
+  
+  // 初速度を設定
+  let vx, vy, speed;
+  
   if (isDragging) {
-    // ドラッグ終了
+    // ドラッグしていた場合、矢印の方向と長さで発射
     isDragging = false;
     
-    // 矢印の方向と長さから初速度を計算
-    let dirX = dragCurrentX - dragStartX;
-    let dirY = dragCurrentY - dragStartY;
-    let dirMag = sqrt(dirX * dirX + dirY * dirY);
+    // 初速度の大きさは矢印の長さに比例
+    speed = map(dirMag, 0, 100, 0, 10);
+    speed = constrain(speed, 0, 15); // 速度に上限を設定
     
-    // 初速度を設定
-    let vx, vy, speed;
-    
-    // クリックのみの場合（矢印が短い場合）はデフォルトの速度と方向で発射
-    if (dirMag < 5) {
-      // デフォルトの速度（右方向）
-      vx = 5;
-      vy = 0;
-    } else {
-      // 初速度の大きさは矢印の長さに比例
-      speed = map(dirMag, 0, 100, 0, 10);
-      speed = constrain(speed, 0, 15); // 速度に上限を設定
-      
-      // 方向ベクトルを正規化して速度を設定
-      vx = dirX / dirMag * speed;
-      vy = dirY / dirMag * speed;
-    }
-    
-    // 宇宙船を追加
-    spacecrafts.push(new Spacecraft(dragStartX, dragStartY, vx, vy));
+    // 方向ベクトルを正規化して速度を設定
+    vx = dirX / dirMag * speed;
+    vy = dirY / dirMag * speed;
+  } else {
+    // クリックのみの場合はデフォルトの速度と方向で発射
+    vx = 5;
+    vy = 0;
   }
+  
+  // 宇宙船を追加
+  spacecrafts.push(new Spacecraft(dragStartX, dragStartY, vx, vy));
 }
 
 // ウィンドウリサイズイベント
