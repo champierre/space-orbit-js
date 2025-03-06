@@ -207,7 +207,7 @@ function draw() {
     let effect = explosionEffects[i];
     
     // エフェクトを描画
-    fill(255, 100, 0, effect.alpha); // オレンジ色の爆発
+    fill(255, 255, 255, effect.alpha); // 白色の爆発
     noStroke();
     
     // 爆発形状
@@ -225,7 +225,7 @@ function draw() {
     }
     
     // 中心の大きな円
-    fill(255, 200, 0, effect.alpha); // 黄色の中心
+    fill(255, 255, 255, effect.alpha); // 白色の中心
     ellipse(0, 0, effect.size * (1 - effect.life / 30), effect.size * (1 - effect.life / 30));
     
     pop();
