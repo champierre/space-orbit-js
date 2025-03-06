@@ -13,6 +13,7 @@ const MU_MOON = 500; // 月の重力定数
 // 色
 const EARTH_COLOR = [0, 100, 255]; // 地球の色（青）
 const MOON_COLOR = [255, 255, 0]; // 月の色（黄色）
+const MOON_TRAIL_COLOR = [255, 200, 0]; // 月の軌跡の色（オレンジ）
 const BOUND_ORBIT_COLOR = [0, 255, 0]; // 束縛軌道の色（緑）
 const ESCAPE_ORBIT_COLOR = [0, 255, 255]; // 脱出軌道の色（水色）
 const SPACECRAFT_COLOR = [255, 255, 255]; // 宇宙船の色（白）
@@ -21,6 +22,8 @@ const ARROW_COLOR = [255, 100, 100]; // 矢印の色（赤）
 // グローバル変数
 let moonAngle = 0; // 月の角度
 let moonX, moonY; // 月の位置
+let moonTrail = []; // 月の軌跡
+const MOON_TRAIL_LENGTH = 200; // 月の軌跡の長さ（ポイント数）
 let spacecrafts = []; // 宇宙船の配列
 let sparkleEffects = []; // キラキラエフェクトの配列
 let explosionEffects = []; // 爆発エフェクトの配列
@@ -192,6 +195,12 @@ function setup() {
 function updateMoonPosition() {
   moonX = width/2 + MOON_DISTANCE * cos(moonAngle);
   moonY = height/2 + MOON_DISTANCE * sin(moonAngle);
+  
+  // 月の軌跡を更新
+  moonTrail.push(createVector(moonX, moonY));
+  if (moonTrail.length > MOON_TRAIL_LENGTH) {
+    moonTrail.shift();
+  }
 }
 
 // 矢印を描画する関数
@@ -228,6 +237,16 @@ function draw() {
   fill(EARTH_COLOR);
   noStroke();
   ellipse(width/2, height/2, EARTH_RADIUS, EARTH_RADIUS);
+  
+  // 月の軌跡を描画
+  noFill();
+  stroke(MOON_TRAIL_COLOR);
+  strokeWeight(1);
+  beginShape();
+  for (let i = 0; i < moonTrail.length; i++) {
+    vertex(moonTrail[i].x, moonTrail[i].y);
+  }
+  endShape();
   
   // 月を描画
   fill(MOON_COLOR);
