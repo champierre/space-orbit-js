@@ -16,6 +16,7 @@ const MOON_COLOR = [255, 255, 0]; // 月の色（黄色）
 const BOUND_ORBIT_COLOR = [0, 255, 0]; // 束縛軌道の色（緑）
 const ESCAPE_ORBIT_COLOR = [0, 255, 255]; // 脱出軌道の色（水色）
 const SPACECRAFT_COLOR = [255, 255, 255]; // 宇宙船の色（白）
+const ARROW_COLOR = [255, 100, 100]; // 矢印の色（赤）
 
 // グローバル変数
 let moonAngle = 0; // 月の角度
@@ -23,6 +24,9 @@ let moonX, moonY; // 月の位置
 let spacecrafts = []; // 宇宙船の配列
 let sparkleEffects = []; // キラキラエフェクトの配列
 let explosionEffects = []; // 爆発エフェクトの配列
+let isDragging = false; // ドラッグ中かどうか
+let dragStartX, dragStartY; // ドラッグ開始位置
+let dragCurrentX, dragCurrentY; // 現在のドラッグ位置
 
 // 宇宙船クラス
 class Spacecraft {
@@ -190,6 +194,28 @@ function updateMoonPosition() {
   moonY = height/2 + MOON_DISTANCE * sin(moonAngle);
 }
 
+// 矢印を描画する関数
+function drawArrow(x1, y1, x2, y2) {
+  // 矢印の線を描画
+  stroke(ARROW_COLOR);
+  strokeWeight(3);
+  line(x1, y1, x2, y2);
+  
+  // 矢印の先端を描画
+  let angle = atan2(y2 - y1, x2 - x1);
+  let arrowSize = 10;
+  
+  fill(ARROW_COLOR);
+  push();
+  translate(x2, y2);
+  rotate(angle);
+  triangle(0, 0, -arrowSize, -arrowSize/2, -arrowSize, arrowSize/2);
+  pop();
+  
+  // 線の太さをリセット
+  strokeWeight(1);
+}
+
 // p5.jsの描画ループ
 function draw() {
   background(0);
@@ -208,9 +234,14 @@ function draw() {
   noStroke();
   ellipse(moonX, moonY, MOON_RADIUS, MOON_RADIUS);
   
+  // ドラッグ中なら矢印を描画
+  if (isDragging) {
+    drawArrow(dragStartX, dragStartY, dragCurrentX, dragCurrentY);
+  }
+  
   // 宇宙船を更新・描画
   for (let i = spacecrafts.length - 1; i >= 0; i--) {
-    // updateメソッドがtrueを返した場合（地球に衝突した場合）、宇宙船を削除
+    // updateメソッドがtrueを返した場合（地球や月に衝突した場合）、宇宙船を削除
     if (spacecrafts[i].update()) {
       spacecrafts.splice(i, 1);
     } else {
@@ -308,22 +339,51 @@ function mousePressed() {
     return;
   }
   
-  // 最大数を超えないように宇宙船を追加
+  // 最大数を超えない場合のみドラッグ開始
   if (spacecrafts.length < MAX_SPACECRAFT) {
-    // クリック位置から初速度を計算（中心からの方向に初速度を与える）
-    let dirX = mouseX - width/2;
-    let dirY = mouseY - height/2;
-    let dirMag = sqrt(dirX * dirX + dirY * dirY);
+    isDragging = true;
+    dragStartX = mouseX;
+    dragStartY = mouseY;
+    dragCurrentX = mouseX;
+    dragCurrentY = mouseY;
+  }
+}
+
+// マウスドラッグイベント
+function mouseDragged() {
+  if (isDragging) {
+    dragCurrentX = mouseX;
+    dragCurrentY = mouseY;
+  }
+}
+
+// マウスリリースイベント
+function mouseReleased() {
+  if (isDragging) {
+    // ドラッグ終了
+    isDragging = false;
     
-    // 初速度の大きさは距離に比例（遠いほど速く）
-    let speed = map(dirMag, 0, width/2, 2, 8);
-    
-    // 方向ベクトルを正規化して速度を設定
-    let vx = (dirY) / dirMag * speed; // 接線方向（90度回転）
-    let vy = (-dirX) / dirMag * speed;
-    
-    // 宇宙船を追加
-    spacecrafts.push(new Spacecraft(mouseX, mouseY, vx, vy));
+    // 最大数を超えないように宇宙船を追加
+    if (spacecrafts.length < MAX_SPACECRAFT) {
+      // 矢印の方向と長さから初速度を計算
+      let dirX = dragCurrentX - dragStartX;
+      let dirY = dragCurrentY - dragStartY;
+      let dirMag = sqrt(dirX * dirX + dirY * dirY);
+      
+      // 矢印が描かれていない場合（クリックのみの場合）は発射しない
+      if (dirMag < 5) return;
+      
+      // 初速度の大きさは矢印の長さに比例
+      let speed = map(dirMag, 0, 100, 0, 10);
+      speed = constrain(speed, 0, 15); // 速度に上限を設定
+      
+      // 方向ベクトルを正規化して速度を設定
+      let vx = dirX / dirMag * speed;
+      let vy = dirY / dirMag * speed;
+      
+      // 宇宙船を追加
+      spacecrafts.push(new Spacecraft(dragStartX, dragStartY, vx, vy));
+    }
   }
 }
 
