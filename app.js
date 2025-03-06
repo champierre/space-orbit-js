@@ -192,7 +192,7 @@ function updateMoonPosition() {
   
   // 月の軌道の履歴を更新
   moonTrail.push(createVector(moonX, moonY));
-  if (moonTrail.length > 360) { // 月の軌道は一周分（約360ポイント）保存
+  if (moonTrail.length > 1260) { // 月の軌道は約3.5周分（約1260ポイント）保存
     moonTrail.shift();
   }
 }
