@@ -3,7 +3,6 @@ const EARTH_RADIUS = 30; // 地球の半径（ピクセル）
 const MOON_RADIUS = 10; // 月の半径（ピクセル）
 const MOON_DISTANCE = 200; // 月の軌道半径（ピクセル）
 const MOON_ANGULAR_VELOCITY = 0.005; // 月の角速度
-const MAX_SPACECRAFT = 10; // 最大宇宙船数
 const TRAIL_LENGTH = 100; // 軌道の長さ（ポイント数）
 
 // 重力定数
@@ -293,9 +292,6 @@ function draw() {
       sparkleEffects.splice(i, 1);
     }
   }
-  
-  // 宇宙船の数を表示
-  document.getElementById('spacecraft-count').textContent = spacecrafts.length;
 }
 
 // マウスクリックイベント
@@ -308,23 +304,21 @@ function mousePressed() {
     return;
   }
   
-  // 最大数を超えないように宇宙船を追加
-  if (spacecrafts.length < MAX_SPACECRAFT) {
-    // クリック位置から初速度を計算（中心からの方向に初速度を与える）
-    let dirX = mouseX - width/2;
-    let dirY = mouseY - height/2;
-    let dirMag = sqrt(dirX * dirX + dirY * dirY);
-    
-    // 初速度の大きさは距離に比例（遠いほど速く）
-    let speed = map(dirMag, 0, width/2, 2, 8);
-    
-    // 方向ベクトルを正規化して速度を設定
-    let vx = (dirY) / dirMag * speed; // 接線方向（90度回転）
-    let vy = (-dirX) / dirMag * speed;
-    
-    // 宇宙船を追加
-    spacecrafts.push(new Spacecraft(mouseX, mouseY, vx, vy));
-  }
+  // 宇宙船を追加（制限なし）
+  // クリック位置から初速度を計算（中心からの方向に初速度を与える）
+  let dirX = mouseX - width/2;
+  let dirY = mouseY - height/2;
+  let dirMag = sqrt(dirX * dirX + dirY * dirY);
+  
+  // 初速度の大きさは距離に比例（遠いほど速く）
+  let speed = map(dirMag, 0, width/2, 2, 8);
+  
+  // 方向ベクトルを正規化して速度を設定
+  let vx = (dirY) / dirMag * speed; // 接線方向（90度回転）
+  let vy = (-dirX) / dirMag * speed;
+  
+  // 宇宙船を追加
+  spacecrafts.push(new Spacecraft(mouseX, mouseY, vx, vy));
 }
 
 // ウィンドウリサイズイベント
