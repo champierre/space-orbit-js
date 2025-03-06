@@ -293,9 +293,6 @@ function draw() {
       sparkleEffects.splice(i, 1);
     }
   }
-  
-  // 宇宙船の数を表示
-  document.getElementById('spacecraft-count').textContent = spacecrafts.length;
 }
 
 // マウスクリックイベント
