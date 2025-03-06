@@ -383,16 +383,23 @@ function mouseReleased() {
     let dirY = dragCurrentY - dragStartY;
     let dirMag = sqrt(dirX * dirX + dirY * dirY);
     
-    // 矢印が描かれていない場合（クリックのみの場合）は発射しない
-    if (dirMag < 5) return;
+    // 初速度を設定
+    let vx, vy, speed;
     
-    // 初速度の大きさは矢印の長さに比例
-    let speed = map(dirMag, 0, 100, 0, 10);
-    speed = constrain(speed, 0, 15); // 速度に上限を設定
-    
-    // 方向ベクトルを正規化して速度を設定
-    let vx = dirX / dirMag * speed;
-    let vy = dirY / dirMag * speed;
+    // クリックのみの場合（矢印が短い場合）はデフォルトの速度と方向で発射
+    if (dirMag < 5) {
+      // デフォルトの速度（右方向）
+      vx = 5;
+      vy = 0;
+    } else {
+      // 初速度の大きさは矢印の長さに比例
+      speed = map(dirMag, 0, 100, 0, 10);
+      speed = constrain(speed, 0, 15); // 速度に上限を設定
+      
+      // 方向ベクトルを正規化して速度を設定
+      vx = dirX / dirMag * speed;
+      vy = dirY / dirMag * speed;
+    }
     
     // 宇宙船を追加
     spacecrafts.push(new Spacecraft(dragStartX, dragStartY, vx, vy));
