@@ -53,6 +53,22 @@ class Spacecraft {
       return true;
     }
     
+    // 月との衝突チェック
+    let distToMoon = dist(this.position.x, this.position.y, moonX, moonY);
+    if (distToMoon <= MOON_RADIUS) {
+      // 爆発エフェクトを追加
+      explosionEffects.push({
+        x: this.position.x,
+        y: this.position.y,
+        size: 20, // 月での爆発は少し小さめ
+        life: 30, // エフェクトの寿命（フレーム数）
+        alpha: 255 // 透明度
+      });
+      
+      // 衝突した宇宙船を配列から削除するためにnullを返す
+      return true;
+    }
+    
     // 現在の地心エネルギーを保存
     this.prevEnergy = this.energy;
 
