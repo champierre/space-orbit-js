@@ -22,6 +22,7 @@ let moonAngle = 0; // 月の角度
 let moonX, moonY; // 月の位置
 let spacecrafts = []; // 宇宙船の配列
 let sparkleEffects = []; // キラキラエフェクトの配列
+let explosionEffects = []; // 爆発エフェクトの配列
 
 // 宇宙船クラス
 class Spacecraft {
@@ -36,6 +37,38 @@ class Spacecraft {
 
   // 位置と速度を更新（Runge-Kutta法）
   update() {
+    // 地球との衝突チェック
+    let distToEarth = dist(this.position.x, this.position.y, width/2, height/2);
+    if (distToEarth <= EARTH_RADIUS) {
+      // 爆発エフェクトを追加
+      explosionEffects.push({
+        x: this.position.x,
+        y: this.position.y,
+        size: 30,
+        life: 30, // エフェクトの寿命（フレーム数）
+        alpha: 255 // 透明度
+      });
+      
+      // 衝突した宇宙船を配列から削除するためにnullを返す
+      return true;
+    }
+    
+    // 月との衝突チェック
+    let distToMoon = dist(this.position.x, this.position.y, moonX, moonY);
+    if (distToMoon <= MOON_RADIUS) {
+      // 爆発エフェクトを追加
+      explosionEffects.push({
+        x: this.position.x,
+        y: this.position.y,
+        size: 20, // 月での爆発は少し小さめ
+        life: 30, // エフェクトの寿命（フレーム数）
+        alpha: 255 // 透明度
+      });
+      
+      // 衝突した宇宙船を配列から削除するためにnullを返す
+      return true;
+    }
+    
     // 現在の地心エネルギーを保存
     this.prevEnergy = this.energy;
 
@@ -177,8 +210,50 @@ function draw() {
   
   // 宇宙船を更新・描画
   for (let i = spacecrafts.length - 1; i >= 0; i--) {
-    spacecrafts[i].update();
-    spacecrafts[i].draw();
+    // updateメソッドがtrueを返した場合（地球に衝突した場合）、宇宙船を削除
+    if (spacecrafts[i].update()) {
+      spacecrafts.splice(i, 1);
+    } else {
+      spacecrafts[i].draw();
+    }
+  }
+  
+  // 爆発エフェクトを描画
+  for (let i = explosionEffects.length - 1; i >= 0; i--) {
+    let effect = explosionEffects[i];
+    
+    // エフェクトを描画
+    fill(255, 255, 255, effect.alpha); // 白色の爆発
+    noStroke();
+    
+    // 爆発形状
+    push();
+    translate(effect.x, effect.y);
+    
+    // 複数の円を描画して爆発を表現
+    for (let j = 0; j < 8; j++) {
+      let angle = TWO_PI * j / 8;
+      let distance = effect.size * (1 - effect.life / 30) * 0.5;
+      let x = cos(angle) * distance;
+      let y = sin(angle) * distance;
+      let size = effect.size * (effect.life / 30);
+      ellipse(x, y, size, size);
+    }
+    
+    // 中心の大きな円
+    fill(255, 255, 255, effect.alpha); // 白色の中心
+    ellipse(0, 0, effect.size * (1 - effect.life / 30), effect.size * (1 - effect.life / 30));
+    
+    pop();
+    
+    // エフェクトの寿命を減らす
+    effect.life--;
+    effect.alpha = 255 * (effect.life / 30);
+    
+    // 寿命が尽きたエフェクトを削除
+    if (effect.life <= 0) {
+      explosionEffects.splice(i, 1);
+    }
   }
   
   // キラキラエフェクトを描画
