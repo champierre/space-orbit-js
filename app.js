@@ -27,48 +27,11 @@ let isResizing = false; // リサイズ中フラグ
 let touchStartX = null; // タッチ開始位置X
 let touchStartY = null; // タッチ開始位置Y
 let touchStartTime = null; // タッチ開始時刻
+let lastTouchX = null; // 最後のタッチ位置X
+let lastTouchY = null; // 最後のタッチ位置Y
+let debugInfo = ""; // デバッグ情報
 
 // 宇宙船クラス
-// ランダムな明るい色を生成する関数
-function getRandomColor() {
-  // HSLからRGBに変換する関数
-  function hslToRgb(h, s, l) {
-    let r, g, b;
-
-    if (s === 0) {
-      r = g = b = l; // アクロマティック
-    } else {
-      const hue2rgb = (p, q, t) => {
-        if (t < 0) t += 1;
-        if (t > 1) t -= 1;
-        if (t < 1/6) return p + (q - p) * 6 * t;
-        if (t < 1/2) return q;
-        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-        return p;
-      };
-
-      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-      const p = 2 * l - q;
-      r = hue2rgb(p, q, h + 1/3);
-      g = hue2rgb(p, q, h);
-      b = hue2rgb(p, q, h - 1/3);
-    }
-
-    return [
-      Math.round(r * 255),
-      Math.round(g * 255),
-      Math.round(b * 255)
-    ];
-  }
-
-  // ランダムな色相（0-360）、高い彩度（70-100%）、高い明度（60-80%）
-  const h = Math.random();
-  const s = 0.7 + Math.random() * 0.3; // 70-100%
-  const l = 0.6 + Math.random() * 0.2; // 60-80%
-
-  return hslToRgb(h, s, l);
-}
-
 class Spacecraft {
   constructor(x, y, vx, vy) {
     this.position = createVector(x, y);
@@ -223,6 +186,8 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   frameRate(60);
   ellipseMode(RADIUS);
+  textSize(16);
+  textAlign(LEFT, TOP);
   
   // 初期化
   moonAngle = 0;
@@ -354,6 +319,11 @@ function draw() {
       sparkleEffects.splice(i, 1);
     }
   }
+
+  // デバッグ情報を描画
+  fill(255);
+  noStroke();
+  text(debugInfo, 10, 10);
 }
 
 // タッチ開始イベント
@@ -362,22 +332,37 @@ function touchStarted() {
     touchStartX = touches[0].x;
     touchStartY = touches[0].y;
     touchStartTime = millis();
+    debugInfo = `Start: (${Math.round(touchStartX)}, ${Math.round(touchStartY)})`;
   }
   return false;
 }
 
 // タッチ移動イベント
 function touchMoved() {
+  if (touches.length > 0) {
+    lastTouchX = touches[0].x;
+    lastTouchY = touches[0].y;
+    debugInfo = `Move: (${Math.round(lastTouchX)}, ${Math.round(lastTouchY)})`;
+  }
   return false;
 }
 
 // タッチ終了イベント
 function touchEnded() {
-  if (touchStartX === null || touchStartY === null || touchStartTime === null) return false;
+  if (touchStartX === null || touchStartY === null || touchStartTime === null || lastTouchX === null || lastTouchY === null) {
+    // タッチ情報をリセット
+    touchStartX = null;
+    touchStartY = null;
+    touchStartTime = null;
+    lastTouchX = null;
+    lastTouchY = null;
+    debugInfo = "";
+    return false;
+  }
 
-  // 最後のタッチ位置を取得（タッチが終了した直前の位置）
-  let touchEndX = touches.length > 0 ? touches[touches.length - 1].x : mouseX;
-  let touchEndY = touches.length > 0 ? touches[touches.length - 1].y : mouseY;
+  // 最後のタッチ位置を使用
+  let touchEndX = lastTouchX;
+  let touchEndY = lastTouchY;
 
   // 地球をタッチした場合、すべての宇宙船を消去
   let dEarth = dist(touchStartX, touchStartY, width/2, height/2);
@@ -387,6 +372,9 @@ function touchEnded() {
     touchStartX = null;
     touchStartY = null;
     touchStartTime = null;
+    lastTouchX = null;
+    lastTouchY = null;
+    debugInfo = "";
     return false;
   }
   let touchEndTime = millis();
@@ -394,6 +382,8 @@ function touchEnded() {
   // スワイプの距離と時間を計算
   let swipeDistance = dist(touchStartX, touchStartY, touchEndX, touchEndY);
   let swipeTime = (touchEndTime - touchStartTime) / 1000; // 秒単位
+
+  debugInfo = `End: (${Math.round(touchEndX)}, ${Math.round(touchEndY)}) Dist: ${Math.round(swipeDistance)} Time: ${swipeTime.toFixed(2)}s`;
 
   // 最小スワイプ距離と最大スワイプ時間
   if (swipeDistance > 20 && swipeTime < 1.0) {
@@ -433,6 +423,8 @@ function touchEnded() {
   touchStartX = null;
   touchStartY = null;
   touchStartTime = null;
+  lastTouchX = null;
+  lastTouchY = null;
   return false;
 }
 
@@ -501,4 +493,44 @@ function windowResized() {
   setTimeout(() => {
     isResizing = false;
   }, 100);
+}
+
+// ランダムな明るい色を生成する関数
+function getRandomColor() {
+  // HSLからRGBに変換する関数
+  function hslToRgb(h, s, l) {
+    let r, g, b;
+
+    if (s === 0) {
+      r = g = b = l; // アクロマティック
+    } else {
+      const hue2rgb = (p, q, t) => {
+        if (t < 0) t += 1;
+        if (t > 1) t -= 1;
+        if (t < 1/6) return p + (q - p) * 6 * t;
+        if (t < 1/2) return q;
+        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+        return p;
+      };
+
+      const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+      const p = 2 * l - q;
+      r = hue2rgb(p, q, h + 1/3);
+      g = hue2rgb(p, q, h);
+      b = hue2rgb(p, q, h - 1/3);
+    }
+
+    return [
+      Math.round(r * 255),
+      Math.round(g * 255),
+      Math.round(b * 255)
+    ];
+  }
+
+  // ランダムな色相（0-360）、高い彩度（70-100%）、高い明度（60-80%）
+  const h = Math.random();
+  const s = 0.7 + Math.random() * 0.3; // 70-100%
+  const l = 0.6 + Math.random() * 0.2; // 60-80%
+
+  return hslToRgb(h, s, l);
 }
