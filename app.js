@@ -429,41 +429,99 @@ function touchEnded(event) {
   return false;
 }
 
-// マウスクリックイベント（デスクトップ用）
+// マウスダウンイベント
 function mousePressed() {
   if (!touches.length) { // タッチデバイスでない場合のみ実行
+    touchStartX = mouseX;
+    touchStartY = mouseY;
+    touchStartTime = millis();
+    debugInfo = `Start: (${Math.round(touchStartX)}, ${Math.round(touchStartY)})`;
+  }
+  return false;
+}
+
+// マウス移動イベント
+function mouseDragged() {
+  if (!touches.length) { // タッチデバイスでない場合のみ実行
+    lastTouchX = mouseX;
+    lastTouchY = mouseY;
+    debugInfo = `Move: (${Math.round(lastTouchX)}, ${Math.round(lastTouchY)})`;
+  }
+  return false;
+}
+
+// マウスアップイベント
+function mouseReleased() {
+  if (!touches.length) { // タッチデバイスでない場合のみ実行
+    if (touchStartX === null || touchStartY === null || touchStartTime === null) return false;
+
+    // 最後のマウス位置を使用
+    let touchEndX = mouseX;
+    let touchEndY = mouseY;
+
     // 地球をクリックした場合、すべての宇宙船を消去
-    let dEarth = dist(mouseX, mouseY, width/2, height/2);
+    let dEarth = dist(touchStartX, touchStartY, width/2, height/2);
     if (dEarth < EARTH_RADIUS) {
       spacecrafts = [];
       sparkleEffects = [];
-      return;
+      touchStartX = null;
+      touchStartY = null;
+      touchStartTime = null;
+      lastTouchX = null;
+      lastTouchY = null;
+      debugInfo = "";
+      return false;
     }
-    
-    // 宇宙船を追加（制限なし）
-    // クリック位置から初速度を計算（中心からの方向に初速度を与える）
-    let dirX = mouseX - width/2;
-    let dirY = mouseY - height/2;
-    let dirMag = sqrt(dirX * dirX + dirY * dirY);
-    
-    // 初速度の大きさは距離に比例（遠いほど速く）
-    let speed = map(dirMag, 0, width/2, 2, 8);
-    
-    // 方向ベクトルを正規化して速度を設定
-    let vx = (dirY) / dirMag * speed; // 接線方向（90度回転）
-    let vy = (-dirX) / dirMag * speed;
-    
-    // 宇宙船を作成
-    let spacecraft = new Spacecraft(mouseX, mouseY, vx, vy);
-    
-    // Shiftキーが押されている場合、ランダムな色を設定
-    if (keyIsPressed && keyCode === SHIFT) {
-      spacecraft.orbitColor = getRandomColor();
+    let touchEndTime = millis();
+
+    // スワイプの距離と時間を計算
+    let swipeDistance = dist(touchStartX, touchStartY, touchEndX, touchEndY);
+    let swipeTime = (touchEndTime - touchStartTime) / 1000; // 秒単位
+
+    debugInfo = `End: (${Math.round(touchEndX)}, ${Math.round(touchEndY)}) Dist: ${Math.round(swipeDistance)} Time: ${swipeTime.toFixed(2)}s`;
+
+    // 最小スワイプ距離と最大スワイプ時間
+    if (swipeDistance > 20 && swipeTime < 1.0) {
+      // スワイプの方向ベクトル
+      let dirX = touchEndX - touchStartX;
+      let dirY = touchEndY - touchStartY;
+      
+      // スワイプ速度（ピクセル/秒）
+      let swipeSpeed = swipeDistance / swipeTime;
+      
+      // 速度を適切な範囲に調整（2-8の範囲）
+      let speed = map(swipeSpeed, 100, 1000, 2, 8, true);
+      
+      // 方向ベクトルを正規化
+      let dirMag = sqrt(dirX * dirX + dirY * dirY);
+      let normalizedVx = dirX / dirMag;
+      let normalizedVy = dirY / dirMag;
+      
+      // 宇宙船を作成
+      let spacecraft = new Spacecraft(
+        touchStartX,
+        touchStartY,
+        normalizedVx * speed,
+        normalizedVy * speed
+      );
+      
+      // Shiftキーが押されている場合、ランダムな色を設定
+      if (keyIsPressed && keyCode === SHIFT) {
+        spacecraft.orbitColor = getRandomColor();
+      }
+      
+      // 宇宙船を追加
+      spacecrafts.push(spacecraft);
     }
-    
-    // 宇宙船を追加
-    spacecrafts.push(spacecraft);
+
+    // タッチ情報をリセット
+    touchStartX = null;
+    touchStartY = null;
+    touchStartTime = null;
+    lastTouchX = null;
+    lastTouchY = null;
   }
+  return false;
 }
 
 // ウィンドウリサイズイベント
