@@ -358,15 +358,26 @@ function draw() {
 
 // タッチ開始イベント
 function touchStarted() {
-  touchStartX = touches[0].x;
-  touchStartY = touches[0].y;
-  touchStartTime = millis();
+  if (touches.length > 0) {
+    touchStartX = touches[0].x;
+    touchStartY = touches[0].y;
+    touchStartTime = millis();
+  }
+  return false;
+}
+
+// タッチ移動イベント
+function touchMoved() {
   return false;
 }
 
 // タッチ終了イベント
 function touchEnded() {
-  if (touchStartX === null || touchStartY === null || touchStartTime === null) return;
+  if (touchStartX === null || touchStartY === null || touchStartTime === null) return false;
+
+  // 最後のタッチ位置を取得（タッチが終了した直前の位置）
+  let touchEndX = touches.length > 0 ? touches[touches.length - 1].x : mouseX;
+  let touchEndY = touches.length > 0 ? touches[touches.length - 1].y : mouseY;
 
   // 地球をタッチした場合、すべての宇宙船を消去
   let dEarth = dist(touchStartX, touchStartY, width/2, height/2);
@@ -376,11 +387,8 @@ function touchEnded() {
     touchStartX = null;
     touchStartY = null;
     touchStartTime = null;
-    return;
+    return false;
   }
-
-  let touchEndX = touches[0].x;
-  let touchEndY = touches[0].y;
   let touchEndTime = millis();
 
   // スワイプの距離と時間を計算
