@@ -7,7 +7,7 @@ const TRAIL_LENGTH = 100; // 軌道の長さ（ポイント数）
 
 // 重力定数
 const MU_EARTH = 5000; // 地球の重力定数
-const MU_MOON = 500; // 月の重力定数
+const MU_MOON = 250; // 月の重力定数
 
 // 色
 const EARTH_COLOR = [0, 100, 255]; // 地球の色（青）
