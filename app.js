@@ -29,7 +29,6 @@ let touchStartY = null; // タッチ開始位置Y
 let touchStartTime = null; // タッチ開始時刻
 let lastTouchX = null; // 最後のタッチ位置X
 let lastTouchY = null; // 最後のタッチ位置Y
-let debugInfo = ""; // デバッグ情報
 
 // 宇宙船クラス
 class Spacecraft {
@@ -181,7 +180,6 @@ class Spacecraft {
   }
 }
 
-
 // 月の位置を更新
 function updateMoonPosition() {
   moonX = width/2 + MOON_DISTANCE * cos(moonAngle);
@@ -306,11 +304,6 @@ function draw() {
       sparkleEffects.splice(i, 1);
     }
   }
-
-  // デバッグ情報を描画
-  fill(255);
-  noStroke();
-  text(debugInfo, 10, 10);
 }
 
 // p5.jsのセットアップ関数
@@ -339,12 +332,10 @@ function setup() {
         touchStartX = x;
         touchStartY = y;
         touchStartTime = millis();
-        debugInfo = `Start: (${Math.round(x)}, ${Math.round(y)})`;
         break;
       case 'touchmove':
         lastTouchX = x;
         lastTouchY = y;
-        debugInfo = `Move: (${Math.round(x)}, ${Math.round(y)})`;
         break;
       case 'touchend':
         handleTouchEnd();
@@ -379,7 +370,6 @@ function handleTouchEnd() {
     touchStartTime = null;
     lastTouchX = null;
     lastTouchY = null;
-    debugInfo = "";
     return false;
   }
 
@@ -397,7 +387,6 @@ function handleTouchEnd() {
     touchStartTime = null;
     lastTouchX = null;
     lastTouchY = null;
-    debugInfo = "";
     return false;
   }
   let touchEndTime = millis();
@@ -405,8 +394,6 @@ function handleTouchEnd() {
   // スワイプの距離と時間を計算
   let swipeDistance = dist(touchStartX, touchStartY, touchEndX, touchEndY);
   let swipeTime = (touchEndTime - touchStartTime) / 1000; // 秒単位
-
-  debugInfo = `End: (${Math.round(touchEndX)}, ${Math.round(touchEndY)}) Dist: ${Math.round(swipeDistance)} Time: ${swipeTime.toFixed(2)}s`;
 
   // 最小スワイプ距離と最大スワイプ時間
   if (swipeDistance > 20 && swipeTime < 1.0) {
@@ -457,7 +444,6 @@ function mousePressed() {
     touchStartX = mouseX;
     touchStartY = mouseY;
     touchStartTime = millis();
-    debugInfo = `Start: (${Math.round(touchStartX)}, ${Math.round(touchStartY)})`;
   }
   return false;
 }
@@ -467,7 +453,6 @@ function mouseDragged() {
   if (!touches.length) { // タッチデバイスでない場合のみ実行
     lastTouchX = mouseX;
     lastTouchY = mouseY;
-    debugInfo = `Move: (${Math.round(lastTouchX)}, ${Math.round(lastTouchY)})`;
   }
   return false;
 }
@@ -491,7 +476,6 @@ function mouseReleased() {
       touchStartTime = null;
       lastTouchX = null;
       lastTouchY = null;
-      debugInfo = "";
       return false;
     }
     let touchEndTime = millis();
@@ -499,8 +483,6 @@ function mouseReleased() {
     // スワイプの距離と時間を計算
     let swipeDistance = dist(touchStartX, touchStartY, touchEndX, touchEndY);
     let swipeTime = (touchEndTime - touchStartTime) / 1000; // 秒単位
-
-    debugInfo = `End: (${Math.round(touchEndX)}, ${Math.round(touchEndY)}) Dist: ${Math.round(swipeDistance)} Time: ${swipeTime.toFixed(2)}s`;
 
     // 最小スワイプ距離と最大スワイプ時間
     if (swipeDistance > 20 && swipeTime < 1.0) {
