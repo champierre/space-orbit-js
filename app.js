@@ -340,5 +340,24 @@ function mousePressed() {
 
 // ウィンドウリサイズイベント
 function windowResized() {
+  // リサイズ前のキャンバス中心（地球の位置）
+  let oldCenter = createVector(width / 2, height / 2);
+  
+  // キャンバスサイズの更新
   resizeCanvas(windowWidth, windowHeight);
+  
+  // リサイズ後のキャンバス中心
+  let newCenter = createVector(width / 2, height / 2);
+  
+  // 中心のずれを算出
+  let offset = p5.Vector.sub(newCenter, oldCenter);
+  
+  // 宇宙船の位置と軌道を更新
+  spacecrafts.forEach(s => {
+    s.position.add(offset);
+    s.trail = s.trail.map(p => p5.Vector.add(p, offset));
+  });
+  
+  // 月の軌道も更新（必要なら）
+  moonTrail = moonTrail.map(p => p5.Vector.add(p, offset));
 }
