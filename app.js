@@ -324,31 +324,45 @@ function setup() {
   // タッチイベントのデフォルト動作を防止
   let canvasEl = canvas.elt;
   
-  // タッチイベントのバインド
-  function handleTouchStart(e) {
+  // タッチイベントの処理
+  function handleTouch(e) {
     e.preventDefault();
-    touchStarted(e);
-  }
-  
-  function handleTouchMove(e) {
-    e.preventDefault();
-    touchMoved(e);
-  }
-  
-  function handleTouchEnd(e) {
-    e.preventDefault();
-    touchEnded(e);
+    e.stopPropagation();
+    
+    let rect = canvasEl.getBoundingClientRect();
+    let touch = e.touches ? e.touches[0] : null;
+    let x = touch ? touch.clientX - rect.left : mouseX;
+    let y = touch ? touch.clientY - rect.top : mouseY;
+    
+    switch(e.type) {
+      case 'touchstart':
+        touchStartX = x;
+        touchStartY = y;
+        touchStartTime = millis();
+        debugInfo = `Start: (${Math.round(x)}, ${Math.round(y)})`;
+        break;
+      case 'touchmove':
+        lastTouchX = x;
+        lastTouchY = y;
+        debugInfo = `Move: (${Math.round(x)}, ${Math.round(y)})`;
+        break;
+      case 'touchend':
+        handleTouchEnd();
+        break;
+    }
+    return false;
   }
   
   // イベントリスナーの追加
-  canvasEl.addEventListener('touchstart', handleTouchStart, { passive: false });
-  canvasEl.addEventListener('touchmove', handleTouchMove, { passive: false });
-  canvasEl.addEventListener('touchend', handleTouchEnd, { passive: false });
+  canvasEl.addEventListener('touchstart', handleTouch, { passive: false });
+  canvasEl.addEventListener('touchmove', handleTouch, { passive: false });
+  canvasEl.addEventListener('touchend', handleTouch, { passive: false });
   
   // iOS Safariでのスクロール防止
-  document.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-  }, { passive: false });
+  document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.width = '100%';
+  document.body.style.height = '100%';
   
   // 初期化
   moonAngle = 0;
@@ -356,52 +370,8 @@ function setup() {
   updateMoonPosition();
 }
 
-// タッチ/マウス座標を取得する関数
-function getTouchPosition(event) {
-  let x, y;
-  if (event.touches && event.touches.length > 0) {
-    // タッチイベントの場合
-    let rect = event.target.getBoundingClientRect();
-    let touch = event.touches[0];
-    x = touch.clientX - rect.left;
-    y = touch.clientY - rect.top;
-  } else if (event.clientX !== undefined) {
-    // マウスイベントの場合
-    x = mouseX;
-    y = mouseY;
-  } else {
-    // イベントがない場合はマウス座標を使用
-    x = mouseX;
-    y = mouseY;
-  }
-  return { x, y };
-}
-
-// タッチ開始イベント
-function touchStarted(event) {
-  if (event.touches) {
-    let pos = getTouchPosition(event);
-    touchStartX = pos.x;
-    touchStartY = pos.y;
-    touchStartTime = millis();
-    debugInfo = `Start: (${Math.round(touchStartX)}, ${Math.round(touchStartY)})`;
-  }
-  return false;
-}
-
-// タッチ移動イベント
-function touchMoved(event) {
-  if (event.touches) {
-    let pos = getTouchPosition(event);
-    lastTouchX = pos.x;
-    lastTouchY = pos.y;
-    debugInfo = `Move: (${Math.round(lastTouchX)}, ${Math.round(lastTouchY)})`;
-  }
-  return false;
-}
-
-// タッチ終了イベント
-function touchEnded(event) {
+// タッチ終了時の処理
+function handleTouchEnd() {
   if (touchStartX === null || touchStartY === null || touchStartTime === null || lastTouchX === null || lastTouchY === null) {
     // タッチ情報をリセット
     touchStartX = null;
