@@ -326,12 +326,32 @@ function draw() {
   text(debugInfo, 10, 10);
 }
 
+// タッチ/マウス座標を取得する関数
+function getTouchPosition(event) {
+  if (event.touches && event.touches.length > 0) {
+    // タッチイベントの場合
+    let rect = event.target.getBoundingClientRect();
+    return {
+      x: event.touches[0].clientX - rect.left,
+      y: event.touches[0].clientY - rect.top
+    };
+  } else {
+    // マウスイベントの場合
+    return {
+      x: mouseX,
+      y: mouseY
+    };
+  }
+}
+
 // タッチ開始イベント
 function touchStarted(event) {
-  event.preventDefault();
-  let touch = event.touches ? event.touches[0] : event;
-  touchStartX = touch.clientX;
-  touchStartY = touch.clientY;
+  if (event instanceof TouchEvent) {
+    event.preventDefault();
+  }
+  let pos = getTouchPosition(event);
+  touchStartX = pos.x;
+  touchStartY = pos.y;
   touchStartTime = millis();
   debugInfo = `Start: (${Math.round(touchStartX)}, ${Math.round(touchStartY)})`;
   return false;
@@ -339,17 +359,21 @@ function touchStarted(event) {
 
 // タッチ移動イベント
 function touchMoved(event) {
-  event.preventDefault();
-  let touch = event.touches ? event.touches[0] : event;
-  lastTouchX = touch.clientX;
-  lastTouchY = touch.clientY;
+  if (event instanceof TouchEvent) {
+    event.preventDefault();
+  }
+  let pos = getTouchPosition(event);
+  lastTouchX = pos.x;
+  lastTouchY = pos.y;
   debugInfo = `Move: (${Math.round(lastTouchX)}, ${Math.round(lastTouchY)})`;
   return false;
 }
 
 // タッチ終了イベント
 function touchEnded(event) {
-  event.preventDefault();
+  if (event instanceof TouchEvent) {
+    event.preventDefault();
+  }
   if (touchStartX === null || touchStartY === null || touchStartTime === null || lastTouchX === null || lastTouchY === null) {
     // タッチ情報をリセット
     touchStartX = null;
