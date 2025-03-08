@@ -358,6 +358,6 @@ function windowResized() {
     s.trail = s.trail.map(p => p5.Vector.add(p, offset));
   });
   
-  // 月の軌道も更新（必要なら）
-  moonTrail = moonTrail.map(p => p5.Vector.add(p, offset));
+  // リサイズ時は月の軌道をクリア
+  moonTrail = [];
 }
