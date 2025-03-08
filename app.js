@@ -322,13 +322,31 @@ function setup() {
   textAlign(LEFT, TOP);
   
   // タッチイベントのデフォルト動作を防止
-  canvas.elt.addEventListener('touchstart', function(e) {
+  let canvasEl = canvas.elt;
+  
+  // タッチイベントのバインド
+  function handleTouchStart(e) {
     e.preventDefault();
-  }, { passive: false });
-  canvas.elt.addEventListener('touchmove', function(e) {
+    touchStarted(e);
+  }
+  
+  function handleTouchMove(e) {
     e.preventDefault();
-  }, { passive: false });
-  canvas.elt.addEventListener('touchend', function(e) {
+    touchMoved(e);
+  }
+  
+  function handleTouchEnd(e) {
+    e.preventDefault();
+    touchEnded(e);
+  }
+  
+  // イベントリスナーの追加
+  canvasEl.addEventListener('touchstart', handleTouchStart, { passive: false });
+  canvasEl.addEventListener('touchmove', handleTouchMove, { passive: false });
+  canvasEl.addEventListener('touchend', handleTouchEnd, { passive: false });
+  
+  // iOS Safariでのスクロール防止
+  document.addEventListener('touchmove', function(e) {
     e.preventDefault();
   }, { passive: false });
   
@@ -341,16 +359,13 @@ function setup() {
 // タッチ/マウス座標を取得する関数
 function getTouchPosition(event) {
   let x, y;
-  if (event instanceof TouchEvent && event.touches && event.touches.length > 0) {
+  if (event.touches && event.touches.length > 0) {
     // タッチイベントの場合
     let rect = event.target.getBoundingClientRect();
     let touch = event.touches[0];
-    // iOS Safariでのスケーリングを考慮
-    let scaleX = width / rect.width;
-    let scaleY = height / rect.height;
-    x = (touch.clientX - rect.left) * scaleX;
-    y = (touch.clientY - rect.top) * scaleY;
-  } else if (event instanceof MouseEvent) {
+    x = touch.clientX - rect.left;
+    y = touch.clientY - rect.top;
+  } else if (event.clientX !== undefined) {
     // マウスイベントの場合
     x = mouseX;
     y = mouseY;
@@ -364,20 +379,24 @@ function getTouchPosition(event) {
 
 // タッチ開始イベント
 function touchStarted(event) {
-  let pos = getTouchPosition(event);
-  touchStartX = pos.x;
-  touchStartY = pos.y;
-  touchStartTime = millis();
-  debugInfo = `Start: (${Math.round(touchStartX)}, ${Math.round(touchStartY)})`;
+  if (event.touches) {
+    let pos = getTouchPosition(event);
+    touchStartX = pos.x;
+    touchStartY = pos.y;
+    touchStartTime = millis();
+    debugInfo = `Start: (${Math.round(touchStartX)}, ${Math.round(touchStartY)})`;
+  }
   return false;
 }
 
 // タッチ移動イベント
 function touchMoved(event) {
-  let pos = getTouchPosition(event);
-  lastTouchX = pos.x;
-  lastTouchY = pos.y;
-  debugInfo = `Move: (${Math.round(lastTouchX)}, ${Math.round(lastTouchY)})`;
+  if (event.touches) {
+    let pos = getTouchPosition(event);
+    lastTouchX = pos.x;
+    lastTouchY = pos.y;
+    debugInfo = `Move: (${Math.round(lastTouchX)}, ${Math.round(lastTouchY)})`;
+  }
   return false;
 }
 
