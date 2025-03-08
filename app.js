@@ -341,4 +341,41 @@ function mousePressed() {
 // ウィンドウリサイズイベント
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+  
+  // すべての軌跡をリセット
+  moonTrail = [];
+  for (let spacecraft of spacecrafts) {
+    spacecraft.trail = [];
+  }
+  
+  // 地球からの相対位置を維持して宇宙船の位置を更新
+  for (let spacecraft of spacecrafts) {
+    let relX = spacecraft.position.x - width/2;
+    let relY = spacecraft.position.y - height/2;
+    let relVX = spacecraft.velocity.x;
+    let relVY = spacecraft.velocity.y;
+    
+    spacecraft.position.x = windowWidth/2 + relX;
+    spacecraft.position.y = windowHeight/2 + relY;
+    
+    // 速度ベクトルも新しいウィンドウサイズに合わせて調整（相対速度を維持）
+    let speedScale = windowWidth / width;
+    spacecraft.velocity.x = relVX * speedScale;
+    spacecraft.velocity.y = relVY * speedScale;
+  }
+  
+  // エフェクトの位置も地球からの相対位置を維持
+  for (let effect of explosionEffects) {
+    let relX = effect.x - width/2;
+    let relY = effect.y - height/2;
+    effect.x = windowWidth/2 + relX;
+    effect.y = windowHeight/2 + relY;
+  }
+  
+  for (let effect of sparkleEffects) {
+    let relX = effect.x - width/2;
+    let relY = effect.y - height/2;
+    effect.x = windowWidth/2 + relX;
+    effect.y = windowHeight/2 + relY;
+  }
 }
