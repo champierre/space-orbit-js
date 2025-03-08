@@ -351,19 +351,34 @@ function windowResized() {
   for (let spacecraft of spacecrafts) {
     spacecraft.trail = [];
     
-    // 宇宙船の位置を新しいウィンドウサイズに合わせて調整
-    spacecraft.position.x = map(spacecraft.position.x, 0, width, 0, windowWidth);
-    spacecraft.position.y = map(spacecraft.position.y, 0, height, 0, windowHeight);
+    // 地球からの相対位置を計算
+    let relX = spacecraft.position.x - width/2;
+    let relY = spacecraft.position.y - height/2;
+    let relVX = spacecraft.velocity.x;
+    let relVY = spacecraft.velocity.y;
+    
+    // 新しいウィンドウサイズでの位置を設定（相対位置を維持）
+    spacecraft.position.x = windowWidth/2 + relX;
+    spacecraft.position.y = windowHeight/2 + relY;
+    
+    // 速度ベクトルも新しいウィンドウサイズに合わせて調整（相対速度を維持）
+    let speedScale = windowWidth / width;
+    spacecraft.velocity.x = relVX * speedScale;
+    spacecraft.velocity.y = relVY * speedScale;
   }
   
-  // エフェクトの位置も調整
+  // エフェクトの位置も地球からの相対位置を維持
   for (let effect of explosionEffects) {
-    effect.x = map(effect.x, 0, width, 0, windowWidth);
-    effect.y = map(effect.y, 0, height, 0, windowHeight);
+    let relX = effect.x - width/2;
+    let relY = effect.y - height/2;
+    effect.x = windowWidth/2 + relX;
+    effect.y = windowHeight/2 + relY;
   }
   
   for (let effect of sparkleEffects) {
-    effect.x = map(effect.x, 0, width, 0, windowWidth);
-    effect.y = map(effect.y, 0, height, 0, windowHeight);
+    let relX = effect.x - width/2;
+    let relY = effect.y - height/2;
+    effect.x = windowWidth/2 + relX;
+    effect.y = windowHeight/2 + relY;
   }
 }
