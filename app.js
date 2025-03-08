@@ -181,19 +181,6 @@ class Spacecraft {
   }
 }
 
-// p5.jsのセットアップ関数
-function setup() {
-  createCanvas(windowWidth, windowHeight);
-  frameRate(60);
-  ellipseMode(RADIUS);
-  textSize(16);
-  textAlign(LEFT, TOP);
-  
-  // 初期化
-  moonAngle = 0;
-  moonTrail = [];
-  updateMoonPosition();
-}
 
 // 月の位置を更新
 function updateMoonPosition() {
@@ -326,29 +313,57 @@ function draw() {
   text(debugInfo, 10, 10);
 }
 
+// p5.jsのセットアップ関数
+function setup() {
+  let canvas = createCanvas(windowWidth, windowHeight);
+  frameRate(60);
+  ellipseMode(RADIUS);
+  textSize(16);
+  textAlign(LEFT, TOP);
+  
+  // タッチイベントのデフォルト動作を防止
+  canvas.elt.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+  }, { passive: false });
+  canvas.elt.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+  }, { passive: false });
+  canvas.elt.addEventListener('touchend', function(e) {
+    e.preventDefault();
+  }, { passive: false });
+  
+  // 初期化
+  moonAngle = 0;
+  moonTrail = [];
+  updateMoonPosition();
+}
+
 // タッチ/マウス座標を取得する関数
 function getTouchPosition(event) {
-  if (event.touches && event.touches.length > 0) {
+  let x, y;
+  if (event instanceof TouchEvent && event.touches && event.touches.length > 0) {
     // タッチイベントの場合
     let rect = event.target.getBoundingClientRect();
-    return {
-      x: event.touches[0].clientX - rect.left,
-      y: event.touches[0].clientY - rect.top
-    };
-  } else {
+    let touch = event.touches[0];
+    // iOS Safariでのスケーリングを考慮
+    let scaleX = width / rect.width;
+    let scaleY = height / rect.height;
+    x = (touch.clientX - rect.left) * scaleX;
+    y = (touch.clientY - rect.top) * scaleY;
+  } else if (event instanceof MouseEvent) {
     // マウスイベントの場合
-    return {
-      x: mouseX,
-      y: mouseY
-    };
+    x = mouseX;
+    y = mouseY;
+  } else {
+    // イベントがない場合はマウス座標を使用
+    x = mouseX;
+    y = mouseY;
   }
+  return { x, y };
 }
 
 // タッチ開始イベント
 function touchStarted(event) {
-  if (event instanceof TouchEvent) {
-    event.preventDefault();
-  }
   let pos = getTouchPosition(event);
   touchStartX = pos.x;
   touchStartY = pos.y;
@@ -359,9 +374,6 @@ function touchStarted(event) {
 
 // タッチ移動イベント
 function touchMoved(event) {
-  if (event instanceof TouchEvent) {
-    event.preventDefault();
-  }
   let pos = getTouchPosition(event);
   lastTouchX = pos.x;
   lastTouchY = pos.y;
@@ -371,9 +383,6 @@ function touchMoved(event) {
 
 // タッチ終了イベント
 function touchEnded(event) {
-  if (event instanceof TouchEvent) {
-    event.preventDefault();
-  }
   if (touchStartX === null || touchStartY === null || touchStartTime === null || lastTouchX === null || lastTouchY === null) {
     // タッチ情報をリセット
     touchStartX = null;
