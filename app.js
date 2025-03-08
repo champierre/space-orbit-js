@@ -327,28 +327,29 @@ function draw() {
 }
 
 // タッチ開始イベント
-function touchStarted() {
-  if (touches.length > 0) {
-    touchStartX = touches[0].x;
-    touchStartY = touches[0].y;
-    touchStartTime = millis();
-    debugInfo = `Start: (${Math.round(touchStartX)}, ${Math.round(touchStartY)})`;
-  }
+function touchStarted(event) {
+  event.preventDefault();
+  let touch = event.touches ? event.touches[0] : event;
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+  touchStartTime = millis();
+  debugInfo = `Start: (${Math.round(touchStartX)}, ${Math.round(touchStartY)})`;
   return false;
 }
 
 // タッチ移動イベント
-function touchMoved() {
-  if (touches.length > 0) {
-    lastTouchX = touches[0].x;
-    lastTouchY = touches[0].y;
-    debugInfo = `Move: (${Math.round(lastTouchX)}, ${Math.round(lastTouchY)})`;
-  }
+function touchMoved(event) {
+  event.preventDefault();
+  let touch = event.touches ? event.touches[0] : event;
+  lastTouchX = touch.clientX;
+  lastTouchY = touch.clientY;
+  debugInfo = `Move: (${Math.round(lastTouchX)}, ${Math.round(lastTouchY)})`;
   return false;
 }
 
 // タッチ終了イベント
-function touchEnded() {
+function touchEnded(event) {
+  event.preventDefault();
   if (touchStartX === null || touchStartY === null || touchStartTime === null || lastTouchX === null || lastTouchY === null) {
     // タッチ情報をリセット
     touchStartX = null;
