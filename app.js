@@ -23,6 +23,7 @@ let moonTrail = []; // 月の軌道の履歴
 let spacecrafts = []; // 宇宙船の配列
 let sparkleEffects = []; // キラキラエフェクトの配列
 let explosionEffects = []; // 爆発エフェクトの配列
+let isResizing = false; // リサイズ中フラグ
 
 // 宇宙船クラス
 class Spacecraft {
@@ -123,7 +124,7 @@ class Spacecraft {
 
     // キラキラエフェクトの判定（エネルギー増加率が閾値を超えた場合）
     let energyIncrease = this.energy - this.prevEnergy;
-    if (energyIncrease > 0.1) {
+    if (energyIncrease > 0.1 && !isResizing) {
       this.sparkle = true;
       // キラキラエフェクトを追加
       sparkleEffects.push({
@@ -340,6 +341,7 @@ function mousePressed() {
 
 // ウィンドウリサイズイベント
 function windowResized() {
+  isResizing = true;
   // リサイズ前のキャンバス中心（地球の位置）
   let oldCenter = createVector(width / 2, height / 2);
   
@@ -360,4 +362,9 @@ function windowResized() {
   
   // リサイズ時は月の軌道をクリア
   moonTrail = [];
+  
+  // リサイズ完了後、フラグをリセット
+  setTimeout(() => {
+    isResizing = false;
+  }, 100);
 }
