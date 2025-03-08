@@ -26,6 +26,15 @@ let explosionEffects = []; // 爆発エフェクトの配列
 let isResizing = false; // リサイズ中フラグ
 
 // 宇宙船クラス
+// ランダムな色を生成する関数
+function getRandomColor() {
+  return [
+    Math.floor(Math.random() * 256),
+    Math.floor(Math.random() * 256),
+    Math.floor(Math.random() * 256)
+  ];
+}
+
 class Spacecraft {
   constructor(x, y, vx, vy) {
     this.position = createVector(x, y);
@@ -34,6 +43,7 @@ class Spacecraft {
     this.energy = 0; // 地心エネルギー
     this.prevEnergy = 0; // 前フレームの地心エネルギー
     this.sparkle = false; // キラキラエフェクトのフラグ
+    this.orbitColor = null; // 軌道の色（nullの場合はエネルギーに基づいて決定）
   }
 
   // 位置と速度を更新（Runge-Kutta法）
@@ -155,12 +165,12 @@ class Spacecraft {
 
   // 宇宙船と軌道を描画
   draw() {
-    // 軌道の色を決定（エネルギーに基づく）
-    let orbitColor = this.energy < 0 ? BOUND_ORBIT_COLOR : ESCAPE_ORBIT_COLOR;
+    // 軌道の色を決定
+    let orbitColor = this.orbitColor || (this.energy < 0 ? BOUND_ORBIT_COLOR : ESCAPE_ORBIT_COLOR);
 
     // 軌道を描画
     noFill();
-    stroke(orbitColor);
+    stroke(...orbitColor);
     beginShape();
     for (let i = 0; i < this.trail.length; i++) {
       vertex(this.trail[i].x, this.trail[i].y);
@@ -335,8 +345,16 @@ function mousePressed() {
   let vx = (dirY) / dirMag * speed; // 接線方向（90度回転）
   let vy = (-dirX) / dirMag * speed;
   
+  // 宇宙船を作成
+  let spacecraft = new Spacecraft(mouseX, mouseY, vx, vy);
+  
+  // Shiftキーが押されている場合、ランダムな色を設定
+  if (keyIsPressed && keyCode === SHIFT) {
+    spacecraft.orbitColor = getRandomColor();
+  }
+  
   // 宇宙船を追加
-  spacecrafts.push(new Spacecraft(mouseX, mouseY, vx, vy));
+  spacecrafts.push(spacecraft);
 }
 
 // ウィンドウリサイズイベント
