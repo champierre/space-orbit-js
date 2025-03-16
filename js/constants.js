@@ -2,7 +2,7 @@
 const EARTH_RADIUS = 30; // 地球の半径（ピクセル）
 const MOON_RADIUS = 10; // 月の半径（ピクセル）
 const MOON_DISTANCE = 200; // 月の軌道半径（ピクセル）
-const MOON_ANGULAR_VELOCITY = 0.025; // 月の角速度（円軌道速度に合わせて調整）
+const MOON_ANGULAR_VELOCITY = -0.025; // 月の角速度（円軌道速度に合わせて調整、反時計回りに変更）
 const TRAIL_LENGTH = 100; // 軌道の長さ（ポイント数）
 
 // 重力定数
