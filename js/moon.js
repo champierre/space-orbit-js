@@ -24,7 +24,7 @@ function updateMoonAngle() {
 function drawMoon() {
   // 月の軌道を描画
   noFill();
-  stroke(100, 100, 100); // グレーの軌道
+  stroke(MOON_COLOR); // 月と同じ黄色の軌道
   beginShape();
   for (let i = 0; i < moonTrail.length; i++) {
     vertex(moonTrail[i].x, moonTrail[i].y);
